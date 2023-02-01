@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
     View,
     Text,
@@ -11,19 +11,41 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from 'react-native'
+
+import { useFonts } from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen'
+
+SplashScreen.preventAutoHideAsync()
+
 const image = require('../image/background.png')
 const avatar = require('../image/avatarInput.png')
 const avatarPhoto = require('../image/avatarPhoto.png')
 
 const initialState = {
+    login: '',
     email: '',
     password: '',
 }
 
-export const LoginScreen = () => {
+export const RegistrationScreen = () => {
+    const [fontsLoaded] = useFonts({
+        'Roboto-Medium': require('../Fonts/Roboto-Medium.ttf'),
+        'Roboto-Regular': require('../Fonts/Roboto-Regular.ttf'),
+    })
+
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
+
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync()
+        }
+    }, [fontsLoaded])
+
+    if (!fontsLoaded) {
+        return null
+    }
 
     const onFocusHandler = (data) => {
         setIsShowKeyboard(true)
@@ -51,11 +73,11 @@ export const LoginScreen = () => {
                             setState(initialState)
                         }}
                     >
-                        <Text style={styles.btnText}>Войти</Text>
+                        <Text style={styles.btnText}>Зарегистрироваться</Text>
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.5}>
                         <Text style={styles.linkText}>
-                            Нет аккаунта? Зарегистрироваться
+                            Уже есть аккаунт? Войти
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -64,7 +86,7 @@ export const LoginScreen = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} onLayout={onLayoutRootView}>
             <TouchableWithoutFeedback onPress={closeKeyboardToggler}>
                 <ImageBackground source={image} style={styles.image}>
                     <KeyboardAvoidingView
@@ -73,7 +95,7 @@ export const LoginScreen = () => {
                         <View
                             style={{
                                 ...styles.form,
-                                paddingBottom: isShowKeyboard ? 32 : 144,
+                                paddingBottom: isShowKeyboard ? 32 : 78,
                             }}
                             onSubmitEditing={() => {
                                 setIsShowKeyboard(false)
@@ -81,11 +103,44 @@ export const LoginScreen = () => {
                                 setState(initialState)
                             }}
                         >
+                            <ImageBackground
+                                source={isShowKeyboard ? avatarPhoto : avatar}
+                                style={styles.avatarInput}
+                            />
                             <View style={styles.header}>
-                                <Text style={styles.headerTitle}>Войти</Text>
+                                <Text style={styles.headerTitle}>
+                                    Регистрация
+                                </Text>
                             </View>
-
                             <View>
+                                <TextInput
+                                    style={{
+                                        ...styles.input,
+                                        borderColor:
+                                            borderChangeColor === 'login'
+                                                ? '#FF6C00'
+                                                : '#E8E8E8',
+                                    }}
+                                    textAlign={'left'}
+                                    placeholder="Логин"
+                                    placeholderTextColor="#BDBDBD"
+                                    placeholderStyle={{
+                                        fontFamily: 'Roboto-regular',
+                                    }}
+                                    onFocus={() => {
+                                        onFocusHandler('login')
+                                    }}
+                                    onBlur={onBlurHandler}
+                                    onChangeText={(value) =>
+                                        setState((prevState) => ({
+                                            ...prevState,
+                                            login: value,
+                                        }))
+                                    }
+                                    value={state.login}
+                                />
+                            </View>
+                            <View style={{ marginTop: 16 }}>
                                 <TextInput
                                     style={{
                                         ...styles.input,
@@ -97,6 +152,9 @@ export const LoginScreen = () => {
                                     textAlign={'left'}
                                     placeholder="Адрес электронной почты"
                                     placeholderTextColor="#BDBDBD"
+                                    placeholderStyle={{
+                                        fontFamily: 'Roboto-regular',
+                                    }}
                                     onFocus={() => {
                                         onFocusHandler('email')
                                     }}
@@ -122,6 +180,9 @@ export const LoginScreen = () => {
                                     textAlign={'left'}
                                     placeholder="Пароль"
                                     placeholderTextColor="#BDBDBD"
+                                    placeholderStyle={{
+                                        fontFamily: 'Roboto-regular',
+                                    }}
                                     secureTextEntry={true}
                                     autoCorrect={false}
                                     textContentType="password"
@@ -168,7 +229,7 @@ const styles = StyleSheet.create({
     },
     form: {
         backgroundColor: '#fff',
-        paddingTop: 32,
+        paddingTop: 92,
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
     },
@@ -178,6 +239,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 36,
         marginBottom: 32,
+        fontFamily: 'Roboto-Medium',
     },
     avatarInput: {
         position: 'absolute',
@@ -196,6 +258,7 @@ const styles = StyleSheet.create({
         color: '#212121',
         paddingLeft: 16,
         marginHorizontal: 16,
+        fontFamily: 'Roboto-Regular',
     },
     btn: {
         backgroundColor: '#FF6C00',
@@ -209,6 +272,7 @@ const styles = StyleSheet.create({
     btnText: {
         fontSize: 16,
         color: '#fff',
+        fontFamily: 'Roboto-Regular',
     },
     linkText: {
         marginLeft: 'auto',
@@ -216,6 +280,7 @@ const styles = StyleSheet.create({
         color: '#1B4371',
         marginTop: 16,
         fontSize: 16,
+        fontFamily: 'Roboto-Regular',
     },
     passwordShow: {
         position: 'absolute',
@@ -223,5 +288,6 @@ const styles = StyleSheet.create({
         right: 32,
         fontSize: 16,
         color: '#1B4371',
+        fontFamily: 'Roboto-Regular',
     },
 })

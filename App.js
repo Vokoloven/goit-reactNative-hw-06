@@ -1,6 +1,6 @@
-import { RegistrationScreen } from './Screens/RegistrationScreen'
+import { RegistrationScreen } from './assets/Screens/RegistrationScreen'
 import { StatusBar } from 'expo-status-bar'
-import { LoginScreen } from './Screens/LoginScreen'
+import { LoginScreen } from './assets/Screens/LoginScreen'
 
 export default function App() {
     return (
