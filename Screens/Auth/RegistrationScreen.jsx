@@ -12,9 +12,9 @@ import {
     Keyboard,
 } from 'react-native'
 
-const image = require('../assets/image/background.png')
-const avatar = require('../assets/image/avatarInput.png')
-const avatarPhoto = require('../assets/image/avatarPhoto.png')
+const image = require('../../assets/image/background.png')
+const avatar = require('../../assets/image/avatarInput.png')
+const avatarPhoto = require('../../assets/image/avatarPhoto.png')
 
 const initialState = {
     login: '',
@@ -22,9 +22,7 @@ const initialState = {
     password: '',
 }
 
-console.log(initialState)
-
-export const RegistrationScreen = ({ onLayoutRootView }) => {
+export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
@@ -52,11 +50,17 @@ export const RegistrationScreen = ({ onLayoutRootView }) => {
                         activeOpacity={0.5}
                         onPress={() => {
                             setState(initialState)
+                            navigation.navigate('toHome')
                         }}
                     >
                         <Text style={styles.btnText}>Зарегистрироваться</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5}>
+                    <TouchableOpacity
+                        activeOpacity={0.5}
+                        onPress={() => {
+                            navigation.navigate('Login')
+                        }}
+                    >
                         <Text style={styles.linkText}>
                             Уже есть аккаунт? Войти
                         </Text>
