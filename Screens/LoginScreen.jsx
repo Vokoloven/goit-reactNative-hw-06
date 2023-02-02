@@ -48,7 +48,6 @@ export const LoginScreen = ({ onLayoutRootView }) => {
                         style={styles.btn}
                         activeOpacity={0.5}
                         onPress={() => {
-                            console.log(state)
                             setState(initialState)
                         }}
                     >
@@ -78,7 +77,7 @@ export const LoginScreen = ({ onLayoutRootView }) => {
                             }}
                             onSubmitEditing={() => {
                                 setIsShowKeyboard(false)
-                                console.log(state)
+
                                 setState(initialState)
                             }}
                         >
