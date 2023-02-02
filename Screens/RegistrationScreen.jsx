@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import {
     View,
     Text,
@@ -12,39 +12,22 @@ import {
     Keyboard,
 } from 'react-native'
 
-import { useFonts } from 'expo-font'
-import * as SplashScreen from 'expo-splash-screen'
-
-SplashScreen.preventAutoHideAsync()
-
-const image = require('../image/background.png')
-const avatar = require('../image/avatarInput.png')
-const avatarPhoto = require('../image/avatarPhoto.png')
+const image = require('../assets/image/background.png')
+const avatar = require('../assets/image/avatarInput.png')
+const avatarPhoto = require('../assets/image/avatarPhoto.png')
 
 const initialState = {
+    login: '',
     email: '',
     password: '',
 }
 
-export const LoginScreen = () => {
-    const [fontsLoaded] = useFonts({
-        'Roboto-Medium': require('../Fonts/Roboto-Medium.ttf'),
-        'Roboto-Regular': require('../Fonts/Roboto-Regular.ttf'),
-    })
+console.log(initialState)
 
+export const RegistrationScreen = ({ onLayoutRootView }) => {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
-
-    const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-            await SplashScreen.hideAsync()
-        }
-    }, [fontsLoaded])
-
-    if (!fontsLoaded) {
-        return null
-    }
 
     const onFocusHandler = (data) => {
         setIsShowKeyboard(true)
@@ -72,11 +55,11 @@ export const LoginScreen = () => {
                             setState(initialState)
                         }}
                     >
-                        <Text style={styles.btnText}>Войти</Text>
+                        <Text style={styles.btnText}>Зарегистрироваться</Text>
                     </TouchableOpacity>
                     <TouchableOpacity activeOpacity={0.5}>
                         <Text style={styles.linkText}>
-                            Нет аккаунта? Зарегистрироваться
+                            Уже есть аккаунт? Войти
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -89,12 +72,12 @@ export const LoginScreen = () => {
             <TouchableWithoutFeedback onPress={closeKeyboardToggler}>
                 <ImageBackground source={image} style={styles.image}>
                     <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'null'}
                     >
                         <View
                             style={{
                                 ...styles.form,
-                                paddingBottom: isShowKeyboard ? 32 : 144,
+                                paddingBottom: isShowKeyboard ? 32 : 78,
                             }}
                             onSubmitEditing={() => {
                                 setIsShowKeyboard(false)
@@ -102,11 +85,44 @@ export const LoginScreen = () => {
                                 setState(initialState)
                             }}
                         >
+                            <ImageBackground
+                                source={isShowKeyboard ? avatarPhoto : avatar}
+                                style={styles.avatarInput}
+                            />
                             <View style={styles.header}>
-                                <Text style={styles.headerTitle}>Войти</Text>
+                                <Text style={styles.headerTitle}>
+                                    Регистрация
+                                </Text>
                             </View>
-
                             <View>
+                                <TextInput
+                                    style={{
+                                        ...styles.input,
+                                        borderColor:
+                                            borderChangeColor === 'login'
+                                                ? '#FF6C00'
+                                                : '#E8E8E8',
+                                    }}
+                                    textAlign={'left'}
+                                    placeholder="Логин"
+                                    placeholderTextColor="#BDBDBD"
+                                    placeholderStyle={{
+                                        fontFamily: 'Roboto-regular',
+                                    }}
+                                    onFocus={() => {
+                                        onFocusHandler('login')
+                                    }}
+                                    onBlur={onBlurHandler}
+                                    onChangeText={(value) =>
+                                        setState((prevState) => ({
+                                            ...prevState,
+                                            login: value,
+                                        }))
+                                    }
+                                    value={state.login}
+                                />
+                            </View>
+                            <View style={{ marginTop: 16 }}>
                                 <TextInput
                                     style={{
                                         ...styles.input,
@@ -195,7 +211,7 @@ const styles = StyleSheet.create({
     },
     form: {
         backgroundColor: '#fff',
-        paddingTop: 32,
+        paddingTop: 92,
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
     },
