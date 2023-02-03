@@ -11,6 +11,7 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from 'react-native'
+import { renderButton } from './renderButton'
 
 const image = require('../../assets/image/background.png')
 const avatar = require('../../assets/image/avatarInput.png')
@@ -39,33 +40,6 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
     const closeKeyboardToggler = () => {
         Keyboard.dismiss()
         setIsShowKeyboard(false)
-    }
-
-    const renderButton = () => {
-        if (!isShowKeyboard) {
-            return (
-                <View>
-                    <TouchableOpacity
-                        style={styles.btn}
-                        activeOpacity={0.5}
-                        onPress={() => {
-                            setState(initialState)
-                            navigation.navigate('Home')
-                        }}
-                    >
-                        <Text style={styles.btnText}>Войти</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        activeOpacity={0.5}
-                        onPress={() => navigation.navigate('Registration')}
-                    >
-                        <Text style={styles.linkText}>
-                            Нет аккаунта? Зарегистрироваться
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        }
     }
 
     return (
@@ -157,7 +131,13 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
                                     <Text>Показать</Text>
                                 </TouchableOpacity>
                             </View>
-                            {renderButton()}
+                            {renderButton(
+                                isShowKeyboard,
+                                setState,
+                                initialState,
+                                navigation,
+                                'Registration'
+                            )}
                         </View>
                     </KeyboardAvoidingView>
                 </ImageBackground>
