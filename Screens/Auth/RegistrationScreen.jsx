@@ -26,6 +26,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
+    const [secure, setSecure] = useState(true)
 
     const onFocusHandler = (data) => {
         setIsShowKeyboard(true)
@@ -50,7 +51,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                         activeOpacity={0.5}
                         onPress={() => {
                             setState(initialState)
-                            navigation.navigate('toHome')
+                            navigation.navigate('Home')
                         }}
                     >
                         <Text style={styles.btnText}>Зарегистрироваться</Text>
@@ -84,7 +85,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                             }}
                             onSubmitEditing={() => {
                                 setIsShowKeyboard(false)
-
+                                navigation.navigate('Home')
                                 setState(initialState)
                             }}
                         >
@@ -168,7 +169,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                                     placeholderStyle={{
                                         fontFamily: 'Roboto-regular',
                                     }}
-                                    secureTextEntry={true}
+                                    secureTextEntry={secure}
                                     autoCorrect={false}
                                     textContentType="password"
                                     onFocus={() => {
@@ -183,9 +184,14 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                                     }
                                     value={state.password}
                                 />
-                                <Text style={styles.passwordShow}>
-                                    Показать
-                                </Text>
+                                <TouchableOpacity
+                                    style={styles.passwordShow}
+                                    onPress={() => {
+                                        setSecure(!secure)
+                                    }}
+                                >
+                                    <Text>Показать</Text>
+                                </TouchableOpacity>
                             </View>
                             {renderButton()}
                         </View>
