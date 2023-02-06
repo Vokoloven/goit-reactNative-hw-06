@@ -12,6 +12,7 @@ import {
 import { Camera, CameraType } from 'expo-camera'
 import { MaterialIcons, EvilIcons, Feather } from '@expo/vector-icons'
 import * as Location from 'expo-location'
+import * as Progress from 'react-native-progress'
 
 const initialState = {
     title: '',
@@ -29,6 +30,7 @@ export const CreatePostsScreen = ({ navigation }) => {
     const [data, setData] = useState(false)
     const [geolocation, setGeolocation] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null)
+    const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
         ;(async () => {
@@ -97,11 +99,13 @@ export const CreatePostsScreen = ({ navigation }) => {
     }
 
     const getPhoto = async () => {
+        setIsLoaded(true)
         const photo = await camera.takePictureAsync()
         if (photo) {
             setPhoto(photo.uri)
             const location = await Location.getCurrentPositionAsync({})
             setGeolocation(location.coords)
+            setIsLoaded(false)
         }
     }
 
@@ -240,14 +244,38 @@ export const CreatePostsScreen = ({ navigation }) => {
                                 backgroundColor: data ? '#FF6C00' : '#F6F6F6',
                             }}
                         >
-                            <Text
-                                style={{
-                                    ...styles.publishBtnText,
-                                    color: data ? '#fff' : '#BDBDBD',
-                                }}
-                            >
-                                Опубликовать
-                            </Text>
+                            {isLoaded ? (
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            marginRight: 10,
+                                            color: '#BDBDBD',
+                                        }}
+                                    >
+                                        Loading your location...
+                                    </Text>
+                                    <Progress.Circle
+                                        size={30}
+                                        indeterminate={true}
+                                        color={'#FF6C00'}
+                                    />
+                                </View>
+                            ) : (
+                                <Text
+                                    style={{
+                                        ...styles.publishBtnText,
+                                        color: data ? '#fff' : '#BDBDBD',
+                                    }}
+                                >
+                                    Опубликовать
+                                </Text>
+                            )}
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.trashIcon}
