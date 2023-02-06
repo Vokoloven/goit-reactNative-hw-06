@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar'
 import { RegistrationScreen } from './Screens/Auth/RegistrationScreen'
 import { LoginScreen } from './Screens/Auth/LoginScreen'
-import { Home } from './Screens/Home/HomeScreen'
+import { HomeScreen } from './Screens/Home/HomeScreen'
 import { useCallback } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -53,7 +53,10 @@ export default function App() {
                 </Stack.Screen>
                 <Stack.Screen name="Home">
                     {(props) => (
-                        <Home {...props} onLayoutRootView={onLayoutRootView} />
+                        <HomeScreen
+                            {...props}
+                            onLayoutRootView={onLayoutRootView}
+                        />
                     )}
                 </Stack.Screen>
             </Stack.Navigator>

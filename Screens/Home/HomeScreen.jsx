@@ -1,22 +1,29 @@
 import { PostsScreen } from '../Posts/PostsScreen'
 import { CreatePostsScreen } from '../Posts/CreatePostsScreen'
 import { ProfileScreen } from '../Profile/ProfileScreen'
+import {
+    getHeaderTitle,
+    getTabBarStyle,
+    getHeaderRight,
+    getHeaderLeft,
+} from './screenOptions'
 
-import { StyleSheet, TouchableOpacity, View, Text } from 'react-native'
+import { StyleSheet, View, TouchableOpacity } from 'react-native'
 
-import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons'
+import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+
 const Tab = createBottomTabNavigator()
 
-export const Home = () => {
+export const HomeScreen = ({ navigation }) => {
     return (
         <Tab.Navigator>
             <Tab.Screen
                 name="Posts"
                 component={PostsScreen}
-                options={{
-                    title: 'Публикации',
+                options={({ route }) => ({
+                    title: getHeaderTitle(route),
                     headerStyle: {
                         borderBottomWidth: '1px',
                         borderBottomColor: '#E8E8E8',
@@ -25,22 +32,18 @@ export const Home = () => {
                         fontFamily: 'Roboto-Medium',
                         fontSize: 17,
                     },
+                    tabBarStyle: {
+                        display: getTabBarStyle(route),
+                    },
                     tabBarLabel: '',
                     tabBarIcon: ({ color }) => (
                         <Feather name="grid" size={24} color={color} />
                     ),
                     tabBarActiveTintColor: '#FF6C00',
                     tabBarInActiveTintColor: '#212121',
-
-                    headerRight: () => (
-                        <MaterialIcons
-                            name="logout"
-                            size={24}
-                            color="#BDBDBD"
-                            style={{ marginRight: 16 }}
-                        />
-                    ),
-                }}
+                    headerRight: () => getHeaderRight(route, navigation),
+                    headerLeft: () => getHeaderLeft(route, navigation),
+                })}
             />
             <Tab.Screen
                 name="CreatePosts"
@@ -65,8 +68,18 @@ export const Home = () => {
                             />
                         </View>
                     ),
-                    tabBarActiveTintColor: '#FF6C00',
-                    tabBarInActiveTintColor: '#212121',
+                    tabBarStyle: {
+                        display: 'none',
+                    },
+                    headerLeft: () => (
+                        <AntDesign
+                            onPress={() => navigation.navigate('DefaultScreen')}
+                            name="arrowleft"
+                            size={24}
+                            color="#212121"
+                            style={{ marginLeft: 16 }}
+                        />
+                    ),
                 }}
             />
             <Tab.Screen

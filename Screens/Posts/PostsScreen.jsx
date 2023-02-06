@@ -1,21 +1,24 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { DefaultPostsScreen } from '../NestingScreen/DefaultPostsScreen'
+import { CommentsScreen } from '../NestingScreen/CommentsScreen'
+import { MapScreen } from '../NestingScreen/MapScreen'
+
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+const PostStack = createNativeStackNavigator()
 
 export const PostsScreen = () => {
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>That is awesome App</Text>
-        </View>
+        <PostStack.Navigator
+            screenOptions={{
+                headerShown: false,
+            }}
+        >
+            <PostStack.Screen
+                name="DefaultScreen"
+                component={DefaultPostsScreen}
+            />
+            <PostStack.Screen name="Comments" component={CommentsScreen} />
+            <PostStack.Screen name="Map" component={MapScreen} />
+        </PostStack.Navigator>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    text: {
-        fontSize: 30,
-    },
-})
