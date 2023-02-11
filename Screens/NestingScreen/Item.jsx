@@ -13,7 +13,6 @@ export const Item = ({ displayName, comment }) => (
 
 const styles = StyleSheet.create({
     container: {
-        // flex: 1,
         marginTop: 32,
         flexDirection: 'row',
         marginHorizontal: 16,

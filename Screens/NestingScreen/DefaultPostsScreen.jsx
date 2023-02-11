@@ -12,12 +12,6 @@ export const DefaultPostsScreen = ({ navigation }) => {
         setPosts([...postsDb])
     }, [postsDb])
 
-    // useEffect(() => {
-    //     if (params) {
-    //         setPosts((prevState) => [...prevState, params])
-    //     }
-    // }, [params])
-
     return (
         <View style={styles.container}>
             {posts.length > 0 && (

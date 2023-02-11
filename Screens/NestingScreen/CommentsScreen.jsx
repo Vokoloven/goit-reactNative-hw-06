@@ -60,9 +60,6 @@ export const CommentsScreen = ({ route: { params } }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'null'}
             style={styles.container}
         >
-            {/* <TouchableWithoutFeedback
-                onPress={isFocused ? keyboardToggler : null}
-            > */}
             <View
                 style={{
                     ...styles.inner,
@@ -120,7 +117,6 @@ export const CommentsScreen = ({ route: { params } }) => {
                     </View>
                 </View>
             </View>
-            {/* </TouchableWithoutFeedback> */}
         </KeyboardAvoidingView>
     )
 }

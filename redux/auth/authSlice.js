@@ -44,8 +44,9 @@ export const authSlice = createSlice({
         builder.addCase(userRefresh.pending, (state) => {
             state.isLogged = false
         })
-        builder.addCase(userRefresh.fulfilled, (state) => {
+        builder.addCase(userRefresh.fulfilled, (state, { payload }) => {
             state.isLogged = true
+            state.user = { ...payload }
         })
         builder.addCase(userRefresh.rejected, (state) => {
             state.isLogged = false

@@ -93,7 +93,7 @@ export const CreatePostsScreen = ({ navigation }) => {
 
     const sendToPost = () => {
         uploadPostToDb(photoDb, geolocation, state, user)
-        navigation.navigate('DefaultScreen' /*, { photo, state, geolocation }*/)
+        navigation.navigate('DefaultScreen')
         setPhoto('')
         setState(initialState)
         clearPostData()
