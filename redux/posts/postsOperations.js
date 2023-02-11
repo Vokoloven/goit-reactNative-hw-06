@@ -22,7 +22,6 @@ export const dataPosts = createAsyncThunk('posts/Data', async (_, thunkAPI) => {
 export const dataComments = createAsyncThunk(
     'posts/Comments',
     async (postsId, thunkAPI) => {
-        console.log(postsId)
         try {
             if (postsId) {
                 const data = []

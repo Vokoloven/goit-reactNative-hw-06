@@ -20,7 +20,7 @@ export const Item = ({
                         size={24}
                         color="#BDBDBD"
                         onPress={() =>
-                            navigation.navigate('Comments', { postsId })
+                            navigation.navigate('Comments', { postsId, photo })
                         }
                     />
                     <Text style={styles.commentText}>0</Text>

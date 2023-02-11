@@ -6,14 +6,18 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
     TouchableOpacity,
+    FlatList,
+    Image,
 } from 'react-native'
 import { AntDesign } from '@expo/vector-icons'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectUser } from '../../redux/selectors/userSelector/userSelector'
+import { selectPosts } from '../../redux/selectors/postsSelector/postsSelector'
 import exportFirebase from '../../firebase/config'
 import { doc, collection, addDoc } from 'firebase/firestore'
 import { dataComments } from '../../redux/posts/postsOperations'
+import { Item } from './Item'
 
 const { db } = exportFirebase
 
@@ -21,9 +25,10 @@ export const CommentsScreen = ({ route: { params } }) => {
     const [isFocused, setIsFocused] = useState(false)
     const [comment, setComment] = useState('')
     const { user } = useSelector(selectUser)
-    const { postsId } = params
+    const { commentsDb } = useSelector(selectPosts)
+    const { postsId, photo } = params
     const { displayName } = user
-    const [commentDb, setCommentDb] = useState([])
+
     const dispatch = useDispatch()
 
     const createComment = async () => {
@@ -55,15 +60,35 @@ export const CommentsScreen = ({ route: { params } }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'null'}
             style={styles.container}
         >
-            <TouchableWithoutFeedback
+            {/* <TouchableWithoutFeedback
                 onPress={isFocused ? keyboardToggler : null}
+            > */}
+            <View
+                style={{
+                    ...styles.inner,
+                    marginBottom: isFocused ? 100 : 16,
+                }}
             >
+                <Image source={{ uri: photo }} style={styles.photo} />
+                {commentsDb && (
+                    <View style={{ height: 323 }}>
+                        <FlatList
+                            data={commentsDb}
+                            keyExtractor={(_, index) => index.toString()}
+                            renderItem={({ item }) => (
+                                <Item
+                                    displayName={item.displayName}
+                                    comment={item.comment}
+                                />
+                            )}
+                        ></FlatList>
+                    </View>
+                )}
                 <View style={styles.form}>
                     <View>
                         <TextInput
                             style={{
                                 ...styles.input,
-                                marginBottom: isFocused ? 80 : 0,
                             }}
                             onFocus={() => {
                                 setIsFocused(true)
@@ -80,8 +105,9 @@ export const CommentsScreen = ({ route: { params } }) => {
                         {isFocused && (
                             <TouchableOpacity
                                 style={styles.button}
+                                disabled={comment ? false : true}
                                 onPress={() => {
-                                    keyboardToggler, createComment()
+                                    keyboardToggler(), createComment()
                                 }}
                             >
                                 <AntDesign
@@ -93,7 +119,8 @@ export const CommentsScreen = ({ route: { params } }) => {
                         )}
                     </View>
                 </View>
-            </TouchableWithoutFeedback>
+            </View>
+            {/* </TouchableWithoutFeedback> */}
         </KeyboardAvoidingView>
     )
 }
@@ -104,11 +131,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     form: {
-        marginTop: 32,
-        marginBottom: 16,
         marginHorizontal: 16,
+        marginTop: 31,
+        // flex: 1,
+        justifyContent: 'flex-end',
+    },
+
+    inner: {
         flex: 1,
         justifyContent: 'flex-end',
+        marginTop: 32,
+    },
+
+    photo: {
+        height: 240,
+        marginBottom: 32,
+        borderRadius: 8,
+        marginHorizontal: 16,
     },
     input: {
         height: 50,
@@ -118,6 +157,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E8E8E8',
     },
+
     button: {
         backgroundColor: '#FF6C00',
         width: 34,
