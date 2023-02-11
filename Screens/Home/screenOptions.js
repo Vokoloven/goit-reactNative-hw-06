@@ -27,13 +27,13 @@ export const getTabBarStyle = (route) => {
     }
 }
 
-export const getHeaderRight = (route, navigation) => {
+export const getHeaderRight = (route, logOutToggler) => {
     const routeName = getFocusedRouteNameFromRoute(route) ?? 'DefaultScreen'
     switch (routeName) {
         case 'DefaultScreen':
             return (
                 <MaterialIcons
-                    onPress={() => navigation.goBack()}
+                    onPress={logOutToggler}
                     name="logout"
                     size={24}
                     color="#BDBDBD"

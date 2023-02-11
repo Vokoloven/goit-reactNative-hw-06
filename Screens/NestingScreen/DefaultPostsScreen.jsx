@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { selectPosts } from '../../redux/selectors/postsSelector/postsSelector'
 import { View, StyleSheet, FlatList } from 'react-native'
 import { Item } from '../Posts/Item'
 
-export const DefaultPostsScreen = ({ route: { params }, navigation }) => {
+export const DefaultPostsScreen = ({ navigation }) => {
     const [posts, setPosts] = useState([])
+    const { postsDb } = useSelector(selectPosts)
 
     useEffect(() => {
-        if (params) {
-            setPosts((prevState) => [...prevState, params])
-        }
-    }, [params])
+        setPosts([...postsDb])
+    }, [postsDb])
+
+    // useEffect(() => {
+    //     if (params) {
+    //         setPosts((prevState) => [...prevState, params])
+    //     }
+    // }, [params])
 
     return (
         <View style={styles.container}>
@@ -24,6 +31,7 @@ export const DefaultPostsScreen = ({ route: { params }, navigation }) => {
                             title={item.state.title}
                             location={item.state.location}
                             geolocation={item.geolocation}
+                            postsId={item.id}
                         />
                     )}
                 />

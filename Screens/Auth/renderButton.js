@@ -1,11 +1,15 @@
 import { View, Text, TouchableOpacity } from 'react-native'
+import { logAssistance, regAssistance } from './helpers/authAssistance'
 
 export const renderButton = (
     isShowKeyboard,
     setState,
     initialState,
     navigation,
-    auth
+    auth,
+    dispatch,
+    state,
+    dataPosts
 ) => {
     if (!isShowKeyboard) {
         return (
@@ -22,36 +26,77 @@ export const renderButton = (
                     }}
                     activeOpacity={0.5}
                     onPress={() => {
-                        setState(initialState)
-                        navigation.navigate('Home')
+                        auth === 'Login'
+                            ? regAssistance(
+                                  state,
+                                  dispatch,
+                                  setState,
+                                  initialState
+                              )
+                            : logAssistance(
+                                  state,
+                                  dispatch,
+                                  setState,
+                                  initialState,
+                                  dataPosts
+                              )
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 16,
-                            color: '#fff',
-                            fontFamily: 'Roboto-Regular',
-                        }}
-                    >
-                        Войти
-                    </Text>
+                    {auth === 'Login' ? (
+                        <Text
+                            style={{
+                                fontSize: 16,
+                                color: '#fff',
+                                fontFamily: 'Roboto-Regular',
+                            }}
+                        >
+                            Зарегистрироваться
+                        </Text>
+                    ) : (
+                        <Text
+                            style={{
+                                fontSize: 16,
+                                color: '#fff',
+                                fontFamily: 'Roboto-Regular',
+                            }}
+                        >
+                            Войти
+                        </Text>
+                    )}
                 </TouchableOpacity>
                 <TouchableOpacity
                     activeOpacity={0.5}
-                    onPress={() => navigation.navigate(auth)}
+                    onPress={() => {
+                        navigation.navigate(auth)
+                    }}
                 >
-                    <Text
-                        style={{
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
-                            color: '#1B4371',
-                            marginTop: 16,
-                            fontSize: 16,
-                            fontFamily: 'Roboto-Regular',
-                        }}
-                    >
-                        Нет аккаунта? Зарегистрироваться
-                    </Text>
+                    {auth === 'Login' ? (
+                        <Text
+                            style={{
+                                marginLeft: 'auto',
+                                marginRight: 'auto',
+                                color: '#1B4371',
+                                marginTop: 16,
+                                fontSize: 16,
+                                fontFamily: 'Roboto-Regular',
+                            }}
+                        >
+                            Уже есть аккаунт? Войти
+                        </Text>
+                    ) : (
+                        <Text
+                            style={{
+                                marginLeft: 'auto',
+                                marginRight: 'auto',
+                                color: '#1B4371',
+                                marginTop: 16,
+                                fontSize: 16,
+                                fontFamily: 'Roboto-Regular',
+                            }}
+                        >
+                            Нет аккаунта? Зарегистрироваться
+                        </Text>
+                    )}
                 </TouchableOpacity>
             </View>
         )

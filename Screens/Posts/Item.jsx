@@ -1,7 +1,14 @@
 import { EvilIcons, Feather } from '@expo/vector-icons'
 import { View, Text, StyleSheet, Image } from 'react-native'
 
-export const Item = ({ photo, title, location, navigation, geolocation }) => {
+export const Item = ({
+    photo,
+    title,
+    location,
+    navigation,
+    geolocation,
+    postsId,
+}) => {
     return (
         <View style={styles.itemContainer}>
             <Image source={{ uri: photo }} style={styles.photo} />
@@ -12,7 +19,9 @@ export const Item = ({ photo, title, location, navigation, geolocation }) => {
                         name="message-circle"
                         size={24}
                         color="#BDBDBD"
-                        onPress={() => navigation.navigate('Comments')}
+                        onPress={() =>
+                            navigation.navigate('Comments', { postsId })
+                        }
                     />
                     <Text style={styles.commentText}>0</Text>
                 </View>

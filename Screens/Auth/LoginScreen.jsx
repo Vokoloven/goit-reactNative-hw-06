@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { logAssistance } from './helpers/authAssistance'
+
 import {
     View,
     Text,
@@ -12,6 +15,7 @@ import {
     Keyboard,
 } from 'react-native'
 import { renderButton } from './renderButton'
+import { dataPosts } from '../../redux/posts/postsOperations'
 
 const image = require('../../assets/image/background.png')
 const avatar = require('../../assets/image/avatarInput.png')
@@ -27,6 +31,7 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
     const [secure, setSecure] = useState(true)
+    const dispatch = useDispatch()
 
     const onFocusHandler = (data) => {
         setIsShowKeyboard(true)
@@ -42,6 +47,18 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
         setIsShowKeyboard(false)
     }
 
+    const onSubmitEditingToggler = () => {
+        setIsShowKeyboard(false)
+        logAssistance(
+            state,
+            dispatch,
+            navigation,
+            setState,
+            initialState,
+            dataPosts
+        )
+    }
+
     return (
         <View style={styles.container} onLayout={onLayoutRootView}>
             <TouchableWithoutFeedback onPress={closeKeyboardToggler}>
@@ -54,11 +71,7 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
                                 ...styles.form,
                                 paddingBottom: isShowKeyboard ? 32 : 144,
                             }}
-                            onSubmitEditing={() => {
-                                setIsShowKeyboard(false)
-                                navigation.navigate('Home')
-                                setState(initialState)
-                            }}
+                            onSubmitEditing={onSubmitEditingToggler}
                         >
                             <View style={styles.header}>
                                 <Text style={styles.headerTitle}>Войти</Text>
@@ -136,7 +149,10 @@ export const LoginScreen = ({ onLayoutRootView, navigation }) => {
                                 setState,
                                 initialState,
                                 navigation,
-                                'Registration'
+                                'Registration',
+                                dispatch,
+                                state,
+                                dataPosts
                             )}
                         </View>
                     </KeyboardAvoidingView>

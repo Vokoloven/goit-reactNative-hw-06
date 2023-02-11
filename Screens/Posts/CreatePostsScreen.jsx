@@ -8,11 +8,18 @@ import {
     TextInput,
     TouchableWithoutFeedback,
     Keyboard,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native'
 import { Camera, CameraType } from 'expo-camera'
 import { MaterialIcons, EvilIcons, Feather } from '@expo/vector-icons'
 import * as Location from 'expo-location'
 import * as Progress from 'react-native-progress'
+import { uploadPhotoToDb, uploadPostToDb } from './databaseRequests'
+import { approvedRules } from './approvedRules'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectUser } from '../../redux/selectors/userSelector/userSelector'
+import { dataPosts } from '../../redux/posts/postsOperations'
 
 const initialState = {
     title: '',
@@ -20,6 +27,7 @@ const initialState = {
 }
 
 export const CreatePostsScreen = ({ navigation }) => {
+    const [isFocused, setIsFocused] = useState(false)
     const [hasPermission, setHasPermission] = useState(null)
     const [type, setType] = useState(CameraType.back)
     const [camera, setCamera] = useState(null)
@@ -31,47 +39,25 @@ export const CreatePostsScreen = ({ navigation }) => {
     const [geolocation, setGeolocation] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null)
     const [isLoaded, setIsLoaded] = useState(false)
+    const [photoDb, setPhotoDb] = useState('')
+    const { user } = useSelector(selectUser)
+    const dispatch = useDispatch()
 
-    useEffect(() => {
-        ;(async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync()
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied')
-                return
-            }
-        })()
-    }, [])
+    approvedRules(
+        useEffect,
+        photo,
+        state,
+        geolocation,
+        setData,
+        setHasPermission,
+        hasPermission,
+        setErrorMsg,
+        errorMsg
+    )
 
-    let text = 'Waiting..'
-    if (errorMsg) {
-        text = errorMsg
-    } else if (location) {
-        text = JSON.stringify(location)
-    }
-
-    useEffect(() => {
-        const isAllDataFilled = () => {
-            if (photo && state.title && state.location && geolocation) {
-                setData(true)
-            } else {
-                setData(false)
-            }
-        }
-        isAllDataFilled()
-    }, [photo, state.title, state.location, geolocation])
-
-    useEffect(() => {
-        ;(async () => {
-            const { status } = await Camera.requestCameraPermissionsAsync()
-            setHasPermission(status === 'granted')
-        })()
-    }, [])
-
-    if (hasPermission === null) {
-        return <View />
-    }
-    if (hasPermission === false) {
-        return <Text>No access to camera</Text>
+    const keyboardToggler = () => {
+        setIsFocused(false)
+        Keyboard.dismiss()
     }
 
     const onFocusHandler = (data) => {
@@ -90,18 +76,14 @@ export const CreatePostsScreen = ({ navigation }) => {
         setState(initialState)
         setPhoto('')
         setGeolocation(null)
-    }
-
-    const sendToPost = () => {
-        navigation.navigate('DefaultScreen', { photo, state, geolocation })
-        setPhoto('')
-        setState(initialState)
+        setData(false)
     }
 
     const getPhoto = async () => {
         setIsLoaded(true)
         const photo = await camera.takePictureAsync()
         if (photo) {
+            uploadPhotoToDb(photo, setPhotoDb)
             setPhoto(photo.uri)
             const location = await Location.getCurrentPositionAsync({})
             setGeolocation(location.coords)
@@ -109,184 +91,217 @@ export const CreatePostsScreen = ({ navigation }) => {
         }
     }
 
+    const sendToPost = () => {
+        uploadPostToDb(photoDb, geolocation, state, user)
+        navigation.navigate('DefaultScreen' /*, { photo, state, geolocation }*/)
+        setPhoto('')
+        setState(initialState)
+        clearPostData()
+        dispatch(dataPosts())
+    }
+
     return (
-        <TouchableWithoutFeedback
-            onPress={() => {
-                Keyboard.dismiss()
-            }}
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'null'}
+            style={styles.container}
         >
-            <View style={styles.container}>
-                <Camera
-                    style={styles.camera}
-                    type={type}
-                    ref={setCamera}
-                    onCameraReady={onCameraReady}
+            <TouchableWithoutFeedback
+                onPress={isFocused ? keyboardToggler : null}
+            >
+                <View
+                    style={{
+                        ...styles.inner,
+                        marginBottom: isFocused ? 103 : 34,
+                    }}
                 >
-                    {photo && (
-                        <View style={styles.getPhotoContainer}>
-                            <Image
-                                source={{ uri: photo }}
-                                style={{ width: 343, height: 240 }}
-                            />
-                        </View>
-                    )}
-                    {!photo && (
-                        <TouchableOpacity
-                            activeOpacity={0.5}
-                            onPress={getPhoto}
-                            style={styles.buttonContainerSnap}
-                        >
-                            <MaterialIcons
-                                name="photo-camera"
-                                size={24}
-                                color="#fff"
-                            />
-                        </TouchableOpacity>
-                    )}
-                    {!photo && (
-                        <View style={styles.buttonContainer}>
+                    <Camera
+                        style={styles.camera}
+                        type={type}
+                        ref={setCamera}
+                        onCameraReady={onCameraReady}
+                    >
+                        {photo && (
+                            <View style={styles.getPhotoContainer}>
+                                <Image
+                                    source={{ uri: photo }}
+                                    style={{ width: 343, height: 240 }}
+                                />
+                            </View>
+                        )}
+                        {!photo && (
                             <TouchableOpacity
-                                style={styles.button}
                                 activeOpacity={0.5}
-                                onPress={() => {
-                                    setType(
-                                        type === CameraType.back
-                                            ? CameraType.front
-                                            : CameraType.back
-                                    )
-                                }}
+                                onPress={getPhoto}
+                                style={styles.buttonContainerSnap}
                             >
                                 <MaterialIcons
-                                    name="flip-camera-ios"
+                                    name="photo-camera"
                                     size={24}
                                     color="#fff"
                                 />
                             </TouchableOpacity>
-                        </View>
-                    )}
-                </Camera>
+                        )}
+                        {!photo && (
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    activeOpacity={0.5}
+                                    onPress={() => {
+                                        setType(
+                                            type === CameraType.back
+                                                ? CameraType.front
+                                                : CameraType.back
+                                        )
+                                    }}
+                                >
+                                    <MaterialIcons
+                                        name="flip-camera-ios"
+                                        size={24}
+                                        color="#fff"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </Camera>
 
-                <View style={styles.form}>
-                    <View>
-                        <TextInput
-                            style={{
-                                ...styles.input,
-                                borderBottomColor:
-                                    borderChangeColor === 'title'
-                                        ? '#FF6C00'
-                                        : '#E8E8E8',
-                            }}
-                            placeholder="Название..."
-                            textAlign="left"
-                            placeholderTextColor="#BDBDBD"
-                            placeholderStyle={{
-                                fontFamily: 'Roboto-regular',
-                            }}
-                            onFocus={() => {
-                                onFocusHandler('title')
-                            }}
-                            onBlur={onBlurHandler}
-                            onChangeText={(value) => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    title: value,
-                                }))
-                            }}
-                            value={state.title}
-                        />
-                    </View>
-                    <View>
-                        <TextInput
-                            style={{
-                                ...styles.input,
-                                borderBottomColor:
+                    <View style={styles.form}>
+                        <View>
+                            <TextInput
+                                style={{
+                                    ...styles.input,
+                                    borderBottomColor:
+                                        borderChangeColor === 'title'
+                                            ? '#FF6C00'
+                                            : '#E8E8E8',
+                                }}
+                                placeholder="Название..."
+                                textAlign="left"
+                                placeholderTextColor="#BDBDBD"
+                                placeholderStyle={{
+                                    fontFamily: 'Roboto-regular',
+                                }}
+                                onFocus={() => {
+                                    onFocusHandler('title')
+                                    setIsFocused(true)
+                                }}
+                                onBlur={() => {
+                                    onBlurHandler()
+                                    setIsFocused(false)
+                                }}
+                                onChangeText={(value) => {
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        title: value,
+                                    }))
+                                }}
+                                value={state.title}
+                            />
+                        </View>
+                        <View>
+                            <TextInput
+                                style={{
+                                    ...styles.input,
+                                    borderBottomColor:
+                                        borderChangeColor === 'location'
+                                            ? '#FF6C00'
+                                            : '#E8E8E8',
+                                    marginTop: 16,
+                                    paddingLeft: 28,
+                                }}
+                                placeholder="Местность..."
+                                textAlign="left"
+                                placeholderTextColor="#BDBDBD"
+                                placeholderStyle={{
+                                    fontFamily: 'Roboto-regular',
+                                }}
+                                onFocus={() => {
+                                    onFocusHandler('location')
+                                    setIsFocused(true)
+                                }}
+                                onBlur={() => {
+                                    onBlurHandler()
+                                    setIsFocused(false)
+                                }}
+                                onChangeText={(value) => {
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        location: value,
+                                    }))
+                                }}
+                                value={state.location}
+                            />
+                            <EvilIcons
+                                name="location"
+                                size={24}
+                                color={
                                     borderChangeColor === 'location'
                                         ? '#FF6C00'
-                                        : '#E8E8E8',
-                                marginTop: 16,
-                                paddingLeft: 28,
-                            }}
-                            placeholder="Местность..."
-                            textAlign="left"
-                            placeholderTextColor="#BDBDBD"
-                            placeholderStyle={{
-                                fontFamily: 'Roboto-regular',
-                            }}
-                            onFocus={() => {
-                                onFocusHandler('location')
-                            }}
-                            onBlur={onBlurHandler}
-                            onChangeText={(value) => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    location: value,
-                                }))
-                            }}
-                            value={state.location}
-                        />
-                        <EvilIcons
-                            name="location"
-                            size={24}
-                            color={
-                                borderChangeColor === 'location'
-                                    ? '#FF6C00'
-                                    : '#BDBDBD'
-                            }
-                            style={{ position: 'absolute', bottom: 16 }}
-                        />
-                    </View>
-                    <View>
-                        <TouchableOpacity
-                            onPress={sendToPost}
-                            disabled={data ? false : true}
-                            style={{
-                                ...styles.publishBtn,
-                                backgroundColor: data ? '#FF6C00' : '#F6F6F6',
-                            }}
-                        >
-                            {isLoaded ? (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Text
+                                        : '#BDBDBD'
+                                }
+                                style={{ position: 'absolute', bottom: 16 }}
+                            />
+                        </View>
+                        <View>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    sendToPost(), keyboardToggler()
+                                }}
+                                disabled={data ? false : true}
+                                style={{
+                                    ...styles.publishBtn,
+                                    backgroundColor: data
+                                        ? '#FF6C00'
+                                        : '#F6F6F6',
+                                }}
+                            >
+                                {isLoaded ? (
+                                    <View
                                         style={{
-                                            marginRight: 10,
-                                            color: '#BDBDBD',
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
                                         }}
                                     >
-                                        Loading your location...
+                                        <Text
+                                            style={{
+                                                marginRight: 10,
+                                                color: '#BDBDBD',
+                                            }}
+                                        >
+                                            Loading your location...
+                                        </Text>
+                                        <Progress.Circle
+                                            size={30}
+                                            indeterminate={true}
+                                            color={'#FF6C00'}
+                                        />
+                                    </View>
+                                ) : (
+                                    <Text
+                                        style={{
+                                            ...styles.publishBtnText,
+                                            color: data ? '#fff' : '#BDBDBD',
+                                        }}
+                                    >
+                                        Опубликовать
                                     </Text>
-                                    <Progress.Circle
-                                        size={30}
-                                        indeterminate={true}
-                                        color={'#FF6C00'}
-                                    />
-                                </View>
-                            ) : (
-                                <Text
-                                    style={{
-                                        ...styles.publishBtnText,
-                                        color: data ? '#fff' : '#BDBDBD',
-                                    }}
-                                >
-                                    Опубликовать
-                                </Text>
-                            )}
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.trashIcon}
-                            onPress={clearPostData}
-                        >
-                            <Feather name="trash-2" size={24} color="#BDBDBD" />
-                        </TouchableOpacity>
+                                )}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.trashIcon}
+                                onPress={clearPostData}
+                            >
+                                <Feather
+                                    name="trash-2"
+                                    size={24}
+                                    color="#BDBDBD"
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
@@ -296,8 +311,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
 
+    inner: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+
     camera: {
-        marginTop: 32,
         height: 240,
         justifyContent: 'center',
         alignItems: 'center',
@@ -346,6 +365,6 @@ const styles = StyleSheet.create({
     },
     trashIcon: {
         alignItems: 'center',
-        marginTop: 128,
+        marginTop: 120,
     },
 })

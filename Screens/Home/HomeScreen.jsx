@@ -8,15 +8,31 @@ import {
     getHeaderLeft,
 } from './screenOptions'
 
-import { StyleSheet, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
-import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons'
+import { Ionicons, Feather, AntDesign } from '@expo/vector-icons'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+
+import { useDispatch, useSelector } from 'react-redux'
+import { selectIsLogged } from '../../redux/selectors/authSelector/authSelector.js'
+import { userSignOut } from '../../redux/auth/authOperations'
 
 const Tab = createBottomTabNavigator()
 
 export const HomeScreen = ({ navigation }) => {
+    const dispatch = useDispatch()
+    const { isLogged } = useSelector(selectIsLogged)
+
+    const logOutToggler = async () => {
+        dispatch(userSignOut())
+        if (!isLogged) {
+            ;() => {
+                navigation.navigate('Login')
+            }
+        }
+    }
+
     return (
         <Tab.Navigator>
             <Tab.Screen
@@ -41,7 +57,7 @@ export const HomeScreen = ({ navigation }) => {
                     ),
                     tabBarActiveTintColor: '#FF6C00',
                     tabBarInActiveTintColor: '#212121',
-                    headerRight: () => getHeaderRight(route, navigation),
+                    headerRight: () => getHeaderRight(route, logOutToggler),
                     headerLeft: () => getHeaderLeft(route, navigation),
                 })}
             />

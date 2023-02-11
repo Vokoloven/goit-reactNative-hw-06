@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import { renderButton } from './renderButton'
+import { useDispatch } from 'react-redux'
+import { regAssistance } from './helpers/authAssistance'
+
 import {
     View,
     Text,
@@ -11,7 +15,6 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from 'react-native'
-import { renderButton } from './renderButton'
 
 const image = require('../../assets/image/background.png')
 const avatar = require('../../assets/image/avatarInput.png')
@@ -28,6 +31,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
     const [borderChangeColor, setBorderChangeColor] = useState('')
     const [state, setState] = useState(initialState)
     const [secure, setSecure] = useState(true)
+    const dispatch = useDispatch()
 
     const onFocusHandler = (data) => {
         setIsShowKeyboard(true)
@@ -43,6 +47,11 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
         setIsShowKeyboard(false)
     }
 
+    const onSubmitEditingToggler = () => {
+        setIsShowKeyboard(false)
+        regAssistance(state, dispatch, navigation, setState, initialState)
+    }
+
     return (
         <View style={styles.container} onLayout={onLayoutRootView}>
             <TouchableWithoutFeedback onPress={closeKeyboardToggler}>
@@ -55,11 +64,7 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                                 ...styles.form,
                                 paddingBottom: isShowKeyboard ? 32 : 78,
                             }}
-                            onSubmitEditing={() => {
-                                setIsShowKeyboard(false)
-                                navigation.navigate('Home')
-                                setState(initialState)
-                            }}
+                            onSubmitEditing={onSubmitEditingToggler}
                         >
                             <ImageBackground
                                 source={isShowKeyboard ? avatarPhoto : avatar}
@@ -170,7 +175,9 @@ export const RegistrationScreen = ({ onLayoutRootView, navigation }) => {
                                 setState,
                                 initialState,
                                 navigation,
-                                'Login'
+                                'Login',
+                                dispatch,
+                                state
                             )}
                         </View>
                     </KeyboardAvoidingView>
